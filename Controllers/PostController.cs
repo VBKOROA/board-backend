@@ -1,3 +1,4 @@
+using BoardApi.Dtos;
 using BoardApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,5 +15,25 @@ public class PostController : ControllerBase
     public ActionResult<IEnumerable<Post>> GetPosts()
     {
         return Ok(posts.OrderByDescending(post => post.CreatedAt));
+    }
+
+    [HttpPost]
+    public ActionResult<Post> CreatePost([FromBody] CreatePostRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            return BadRequest("Title is required.");
+        }
+
+        var post = new Post
+        {
+            Id = nextId++,
+            Title = request.Title,
+            Content = request.Content ?? ""
+        };
+
+        posts.Add(post);
+
+        return StatusCode(201, post);
     }
 }
