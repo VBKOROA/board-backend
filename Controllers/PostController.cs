@@ -51,15 +51,15 @@ public class PostController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult<Post> EditPostBy(int id, [FromBody] EditPostRequest request)
+    public IActionResult EditPostBy(int id, [FromBody] EditPostRequest request)
     {
         var post = posts.FirstOrDefault(post => post.Id == id);
-        
+
         if (post is null)
         {
             return NotFound("Post not found");
         }
-        
+
         if (request.Title is null && request.Content is null)
         {
             return BadRequest("One of property shouldn't be null.");
@@ -75,6 +75,21 @@ public class PostController : ControllerBase
             post.Content = request.Content;
         }
 
-        return Ok(post);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    public IActionResult DeletePostBy(int id)
+    {
+        var idx = posts.FindIndex(post => post.Id == id);
+
+        if (idx < 0)
+        {
+            return NotFound("Post not found");
+        }
+
+        posts.RemoveAt(idx);
+
+        return NoContent();
     }
 }
