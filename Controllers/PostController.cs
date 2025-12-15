@@ -36,4 +36,17 @@ public class PostController : ControllerBase
 
         return StatusCode(201, post);
     }
+
+    [HttpGet("{id:int}")]
+    public ActionResult<Post> GetPostBy(int id)
+    {
+        var post = posts.FirstOrDefault(post => post.Id == id);
+
+        if (post is null)
+        {
+            return NotFound("Post not found.");
+        }
+
+        return Ok(post);
+    }
 }
