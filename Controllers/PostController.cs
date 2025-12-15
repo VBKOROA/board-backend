@@ -49,4 +49,32 @@ public class PostController : ControllerBase
 
         return Ok(post);
     }
+
+    [HttpPut("{id:int}")]
+    public ActionResult<Post> EditPostBy(int id, [FromBody] EditPostRequest request)
+    {
+        var post = posts.FirstOrDefault(post => post.Id == id);
+        
+        if (post is null)
+        {
+            return NotFound("Post not found");
+        }
+        
+        if (request.Title is null && request.Content is null)
+        {
+            return BadRequest("One of property shouldn't be null.");
+        }
+
+        if (request.Title is not null)
+        {
+            post.Title = request.Title;
+        }
+
+        if (request.Content is not null)
+        {
+            post.Content = request.Content;
+        }
+
+        return Ok(post);
+    }
 }
