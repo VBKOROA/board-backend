@@ -34,7 +34,7 @@ public class PostController : ControllerBase
 
         posts.Add(post);
 
-        return StatusCode(201, post);
+        return CreatedAtAction(nameof(GetPostBy), post);
     }
 
     [HttpGet("{id:int}")]
