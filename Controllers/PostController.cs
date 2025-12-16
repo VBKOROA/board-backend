@@ -1,24 +1,26 @@
+using BoardApi.Data;
 using BoardApi.Dtos;
 using BoardApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BoardApi.Controllers;
 
 [ApiController]
 [Route("api/posts")]
-public class PostController : ControllerBase
+public class PostController(AppDbContext db) : ControllerBase
 {
-    private static readonly List<Post> posts = [];
-    private static int nextId = 1;
+    private readonly AppDbContext db = db;
 
     [HttpGet]
-    public ActionResult<IEnumerable<Post>> GetPosts()
+    public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
     {
-        return Ok(posts.OrderByDescending(post => post.CreatedAt));
+        var posts = await db.Posts.OrderByDescending(post => post.CreatedAt).ToListAsync();
+        return Ok();
     }
 
     [HttpPost]
-    public ActionResult<Post> CreatePost([FromBody] CreatePostRequest request)
+    public async Task<ActionResult<Post>> CreatePost([FromBody] CreatePostRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Title))
         {
@@ -27,20 +29,20 @@ public class PostController : ControllerBase
 
         var post = new Post
         {
-            Id = nextId++,
             Title = request.Title,
             Content = request.Content ?? ""
         };
 
-        posts.Add(post);
+        db.Posts.Add(post);
+        await db.SaveChangesAsync();
 
         return StatusCode(201, post);
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<Post> GetPostBy(int id)
+    public async Task<ActionResult<Post>> GetPostBy(int id)
     {
-        var post = posts.FirstOrDefault(post => post.Id == id);
+        var post = await db.Posts.FindAsync(id);
 
         if (post is null)
         {
@@ -51,9 +53,9 @@ public class PostController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult EditPostBy(int id, [FromBody] EditPostRequest request)
+    public async Task<IActionResult> EditPostBy(int id, [FromBody] EditPostRequest request)
     {
-        var post = posts.FirstOrDefault(post => post.Id == id);
+        var post = await db.Posts.FindAsync(id);
 
         if (post is null)
         {
@@ -79,16 +81,17 @@ public class PostController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult DeletePostBy(int id)
+    public async Task<IActionResult> DeletePostBy(int id)
     {
-        var idx = posts.FindIndex(post => post.Id == id);
+        var post = await db.Posts.FindAsync(id);
 
-        if (idx < 0)
+        if (post is null)
         {
             return NotFound("Post not found");
         }
 
-        posts.RemoveAt(idx);
+        db.Posts.Remove(post);
+        await db.SaveChangesAsync();
 
         return NoContent();
     }
