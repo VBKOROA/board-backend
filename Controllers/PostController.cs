@@ -16,16 +16,12 @@ public class PostController(AppDbContext db) : ControllerBase
     public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
     {
         var posts = await db.Posts.OrderByDescending(post => post.CreatedAt).ToListAsync();
-        return Ok();
+        return Ok(posts);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Post>> CreatePost([FromBody] CreatePostRequest request)
+    public async Task<ActionResult<CreatePostResponse>> CreatePost([FromBody] CreatePostRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Title))
-        {
-            return BadRequest("Title is required.");
-        }
 
         var post = new Post
         {
@@ -36,11 +32,11 @@ public class PostController(AppDbContext db) : ControllerBase
         db.Posts.Add(post);
         await db.SaveChangesAsync();
 
-        return StatusCode(201, post);
+        return StatusCode(201, new CreatePostResponse(post));
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Post>> GetPostBy(int id)
+    public async Task<ActionResult<GetPostByResponse>> GetPostBy(int id)
     {
         var post = await db.Posts.FindAsync(id);
 
@@ -49,7 +45,7 @@ public class PostController(AppDbContext db) : ControllerBase
             return NotFound("Post not found.");
         }
 
-        return Ok(post);
+        return Ok(new GetPostByResponse(post));
     }
 
     [HttpPut("{id:int}")]
@@ -62,11 +58,6 @@ public class PostController(AppDbContext db) : ControllerBase
             return NotFound("Post not found");
         }
 
-        if (request.Title is null && request.Content is null)
-        {
-            return BadRequest("One of property shouldn't be null.");
-        }
-
         if (request.Title is not null)
         {
             post.Title = request.Title;
@@ -76,6 +67,8 @@ public class PostController(AppDbContext db) : ControllerBase
         {
             post.Content = request.Content;
         }
+
+        await db.SaveChangesAsync();
 
         return NoContent();
     }
