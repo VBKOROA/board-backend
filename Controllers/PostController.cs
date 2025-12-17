@@ -1,3 +1,4 @@
+using BoardApi.Common.Dtos;
 using BoardApi.Data;
 using BoardApi.Dtos;
 using BoardApi.Models;
@@ -13,10 +14,15 @@ public class PostController(AppDbContext db) : ControllerBase
     private readonly AppDbContext db = db;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
+    public async Task<ActionResult<CommonPageResponse<Post>>> GetPosts([FromQuery] GetPostsByQueryParam param)
     {
-        var posts = await db.Posts.OrderByDescending(post => post.CreatedAt).ToListAsync();
-        return Ok(posts);
+        var posts = await db.Posts
+            .OrderByDescending(post => post.CreatedAt)
+            .Skip(param.Page * param.PageSize)
+            .Take(param.PageSize)
+            .ToListAsync();
+            
+        return Ok(new CommonPageResponse<Post>(posts, param.Page, param.PageSize));
     }
 
     [HttpPost]
