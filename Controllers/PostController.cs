@@ -16,13 +16,17 @@ public class PostController(AppDbContext db) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<CommonPageResponse<Post>>> GetPosts([FromQuery] GetPostsByQueryParam param)
     {
-        var posts = await db.Posts
-            .OrderByDescending(post => post.CreatedAt)
+        var orderedPosts = db.Posts
+            .OrderByDescending(post => post.CreatedAt);
+
+        var totalPosts = await orderedPosts.CountAsync();
+
+        var posts = await orderedPosts
             .Skip(param.Page * param.PageSize)
             .Take(param.PageSize)
             .ToListAsync();
-            
-        return Ok(new CommonPageResponse<Post>(posts, param.Page, param.PageSize));
+
+        return Ok(new CommonPageResponse<Post>(posts, param.Page, param.PageSize, totalPosts));
     }
 
     [HttpPost]
