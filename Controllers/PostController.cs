@@ -16,12 +16,19 @@ public class PostController(AppDbContext db) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<CommonPageResponse<Post>>> GetPosts([FromQuery] GetPostsByQueryParam param)
     {
-        var orderedPosts = db.Posts
+        IQueryable<Post> query = db.Posts;
+
+        if (param.Keyword is not null)
+        {
+            query = query.Where(post => post.Title.Contains(param.Keyword) || post.Content.Contains(param.Keyword));
+        }
+
+        query = query
             .OrderByDescending(post => post.CreatedAt);
 
-        var totalPosts = await orderedPosts.CountAsync();
+        var totalPosts = await query.CountAsync();
 
-        var posts = await orderedPosts
+        var posts = await query
             .Skip(param.Page * param.PageSize)
             .Take(param.PageSize)
             .ToListAsync();
