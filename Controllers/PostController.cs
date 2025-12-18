@@ -1,6 +1,7 @@
 using BoardApi.Common.Dtos;
 using BoardApi.Data;
 using BoardApi.Dtos;
+using BoardApi.Enums;
 using BoardApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +24,17 @@ public class PostController(AppDbContext db) : ControllerBase
             query = query.Where(post => post.Title.Contains(param.Keyword) || post.Content.Contains(param.Keyword));
         }
 
-        query = query
-            .OrderByDescending(post => post.CreatedAt);
+        var ordered = param.Sort switch
+        {
+            PostSortType.Title => param.Order == CommonOrderType.Asc ?
+                                query.OrderBy(post => post.Title)
+                                : query.OrderByDescending(post => post.Title),
+            PostSortType.CreatedAt or _ => param.Order == CommonOrderType.Asc ?
+                                query.OrderBy(post => post.CreatedAt)
+                                : query.OrderByDescending(post => post.CreatedAt),
+        };
+
+        query = ordered.ThenByDescending(post => post.Id);
 
         var totalPosts = await query.CountAsync();
 

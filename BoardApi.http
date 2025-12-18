@@ -1,6 +1,6 @@
 @BoardApi_HostAddress = http://localhost:5195
 
-GET {{BoardApi_HostAddress}}/api/posts?page=0
+GET {{BoardApi_HostAddress}}/api/posts?sort=createdat&order=asc
 Accept: application/json
 
 ###
