@@ -12,7 +12,7 @@ public record EditPostRequest(
     {
          if (Title is null && Content is null)
         {
-            yield return new ValidationResult("At least one of Title ore Content must be provided.");
+            yield return new ValidationResult("At least one of Title or Content must be provided.", [nameof(Title), nameof(Content)]);
         }
     }
 }
