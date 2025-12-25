@@ -3,6 +3,7 @@ using BoardApi.Data;
 using BoardApi.Dtos;
 using BoardApi.Enums;
 using BoardApi.Models;
+using BoardApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,40 +11,17 @@ namespace BoardApi.Controllers;
 
 [ApiController]
 [Route("api/posts")]
-public class PostController(AppDbContext db) : ControllerBase
+public class PostController(AppDbContext db, IPostService postService) : ControllerBase
 {
-    private readonly AppDbContext db = db;
+    private readonly AppDbContext _db = db;
+    private readonly IPostService _postService = postService;
 
     [HttpGet]
     public async Task<ActionResult<CommonPageResponse<Post>>> GetPosts([FromQuery] GetPostsByQueryParam param)
     {
-        IQueryable<Post> query = db.Posts;
+        var result = await _postService.GetPagedPost(param.Page, param.PageSize, param.Sort, param.Order, param.Keyword);
 
-        if (param.Keyword is not null)
-        {
-            query = query.Where(post => post.Title.Contains(param.Keyword) || post.Content.Contains(param.Keyword));
-        }
-
-        var ordered = param.Sort switch
-        {
-            PostSortType.Title => param.Order == CommonOrderType.Asc ?
-                                query.OrderBy(post => post.Title)
-                                : query.OrderByDescending(post => post.Title),
-            PostSortType.CreatedAt or _ => param.Order == CommonOrderType.Asc ?
-                                query.OrderBy(post => post.CreatedAt)
-                                : query.OrderByDescending(post => post.CreatedAt),
-        };
-
-        query = ordered.ThenByDescending(post => post.Id);
-
-        var totalPosts = await query.CountAsync();
-
-        var posts = await query
-            .Skip(param.Page * param.PageSize)
-            .Take(param.PageSize)
-            .ToListAsync();
-
-        return Ok(new CommonPageResponse<Post>(posts, param.Page, param.PageSize, totalPosts));
+        return Ok(new CommonPageResponse<Post>(result.Posts, param.Page, param.PageSize, result.TotalPosts));
     }
 
     [HttpPost]
@@ -56,8 +34,8 @@ public class PostController(AppDbContext db) : ControllerBase
             Content = request.Content ?? ""
         };
 
-        db.Posts.Add(post);
-        await db.SaveChangesAsync();
+        _db.Posts.Add(post);
+        await _db.SaveChangesAsync();
 
         return StatusCode(201, new CreatePostResponse(post));
     }
@@ -65,7 +43,7 @@ public class PostController(AppDbContext db) : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<GetPostByResponse>> GetPostBy(int id)
     {
-        var post = await db.Posts.FindAsync(id);
+        var post = await _db.Posts.FindAsync(id);
 
         if (post is null)
         {
@@ -78,7 +56,7 @@ public class PostController(AppDbContext db) : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditPostBy(int id, [FromBody] EditPostRequest request)
     {
-        var post = await db.Posts.FindAsync(id);
+        var post = await _db.Posts.FindAsync(id);
 
         if (post is null)
         {
@@ -95,7 +73,7 @@ public class PostController(AppDbContext db) : ControllerBase
             post.Content = request.Content;
         }
 
-        await db.SaveChangesAsync();
+        await _db.SaveChangesAsync();
 
         return NoContent();
     }
@@ -103,15 +81,15 @@ public class PostController(AppDbContext db) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeletePostBy(int id)
     {
-        var post = await db.Posts.FindAsync(id);
+        var post = await _db.Posts.FindAsync(id);
 
         if (post is null)
         {
             return NotFound("Post not found");
         }
 
-        db.Posts.Remove(post);
-        await db.SaveChangesAsync();
+        _db.Posts.Remove(post);
+        await _db.SaveChangesAsync();
 
         return NoContent();
     }
