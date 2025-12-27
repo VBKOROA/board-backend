@@ -1,3 +1,4 @@
+using BoardApi.Data;
 using BoardApi.Dtos;
 using BoardApi.Enums;
 using BoardApi.Models;
@@ -5,9 +6,10 @@ using BoardApi.Repositories;
 
 namespace BoardApi.Services
 {
-    public class PostService(IPostRepository postRepository) : IPostService
+    public class PostService(IPostRepository postRepository, IUnitOfWork uow) : IPostService
     {
         private readonly IPostRepository _postRepository = postRepository;
+        private readonly IUnitOfWork _uow = uow;
 
         public async Task EditPostBy(int id, string? title, string? content)
         {
@@ -23,7 +25,7 @@ namespace BoardApi.Services
                 post.Content = content;
             }
 
-            await _postRepository.SaveChanges();
+            await _uow.SaveChnages();
         }
 
         public async Task<PostDto?> GetPostBy(int id)
@@ -48,7 +50,8 @@ namespace BoardApi.Services
 
 
             await _postRepository.Add(post);
-
+            await _uow.SaveChnages();
+            
             return new PostDto(post);
         }
 

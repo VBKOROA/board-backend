@@ -18,12 +18,6 @@ namespace BoardApi.Repositories
         public async Task Add(Post post)
         {
             _db.Posts.Add(post);
-            await SaveChanges();
-        }
-
-        public async Task SaveChanges()
-        {
-            await _db.SaveChangesAsync();
         }
 
         public async Task<PagedPostDto> FetchPostsBy(int page, int pageSize, PostSortType postSortType, CommonOrderType orderType, string? keyword)
