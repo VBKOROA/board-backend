@@ -49,24 +49,15 @@ public class PostController(AppDbContext db, IPostService postService) : Control
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditPostBy(int id, [FromBody] EditPostRequest request)
     {
-        var post = await _db.Posts.FindAsync(id);
-
-        if (post is null)
+        
+        try
+        {
+            await _postService.EditPostBy(id, request.Title, request.Content);
+        }
+        catch(Exception)
         {
             return NotFound("Post not found");
         }
-
-        if (request.Title is not null)
-        {
-            post.Title = request.Title;
-        }
-
-        if (request.Content is not null)
-        {
-            post.Content = request.Content;
-        }
-
-        await _db.SaveChangesAsync();
 
         return NoContent();
     }

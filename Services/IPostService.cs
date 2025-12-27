@@ -8,5 +8,6 @@ namespace BoardApi.Services
         Task<PagedPostDto> GetPagedPost(int page, int pageSize, PostSortType postSortType, CommonOrderType orderType, string? keyword);
         Task<PostDto> CreatePost(string title, string? content);
         Task<PostDto?> GetPostBy(int id);
+        Task EditPostBy(int id, string? title, string? content);
     }
 }

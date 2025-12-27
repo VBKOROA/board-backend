@@ -9,7 +9,24 @@ namespace BoardApi.Services
     {
         private readonly IPostRepository _postRepository = postRepository;
 
-        public async Task<PostDto?> GetPostBy(int id) 
+        public async Task EditPostBy(int id, string? title, string? content)
+        {
+            var post = await _postRepository.FindBy(id) ?? throw new Exception();
+            
+            if (title is not null)
+            {
+                post.Title = title;
+            }
+
+            if (content is not null)
+            {
+                post.Content = content;
+            }
+
+            await _postRepository.SaveChanges();
+        }
+
+        public async Task<PostDto?> GetPostBy(int id)
         {
             var post = await _postRepository.FindBy(id);
 
@@ -29,8 +46,8 @@ namespace BoardApi.Services
                 Content = content ?? ""
             };
 
-            
-            await _postRepository.Save(post);
+
+            await _postRepository.Add(post);
 
             return new PostDto(post);
         }

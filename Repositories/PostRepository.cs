@@ -15,9 +15,14 @@ namespace BoardApi.Repositories
             return await _db.Posts.FindAsync(id);
         }
 
-        public async Task Save(Post post)
+        public async Task Add(Post post)
         {
             _db.Posts.Add(post);
+            await SaveChanges();
+        }
+
+        public async Task SaveChanges()
+        {
             await _db.SaveChangesAsync();
         }
 

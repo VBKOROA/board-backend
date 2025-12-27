@@ -7,7 +7,8 @@ namespace BoardApi.Repositories
     public interface IPostRepository
     {
         Task<PagedPostDto> FetchPostsBy(int page, int pageSize, PostSortType postSortType, CommonOrderType orderType, string? keyword);
-        Task Save(Post post);
+        Task Add(Post post);
         Task<Post?> FindBy(int id);
+        Task SaveChanges();
     }
 }
