@@ -9,6 +9,18 @@ namespace BoardApi.Services
     {
         private readonly IPostRepository _postRepository = postRepository;
 
+        public async Task<PostDto?> GetPostBy(int id) 
+        {
+            var post = await _postRepository.FindBy(id);
+
+            if (post is null)
+            {
+                return null;
+            }
+
+            return new PostDto(post);
+        }
+
         public async Task<PostDto> CreatePost(string title, string? content)
         {
             var post = new Post

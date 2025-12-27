@@ -36,7 +36,7 @@ public class PostController(AppDbContext db, IPostService postService) : Control
     [HttpGet("{id:int}")]
     public async Task<ActionResult<GetPostByResponse>> GetPostBy(int id)
     {
-        var post = await _db.Posts.FindAsync(id);
+        var post = await _postService.GetPostBy(id);
 
         if (post is null)
         {

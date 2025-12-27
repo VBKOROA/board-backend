@@ -8,5 +8,6 @@ namespace BoardApi.Repositories
     {
         Task<PagedPostDto> FetchPostsBy(int page, int pageSize, PostSortType postSortType, CommonOrderType orderType, string? keyword);
         Task Save(Post post);
+        Task<Post?> FindBy(int id);
     }
 }
