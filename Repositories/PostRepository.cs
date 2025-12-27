@@ -10,6 +10,12 @@ namespace BoardApi.Repositories
     {
         private readonly AppDbContext _db = db;
 
+        public async Task Save(Post post)
+        {
+            _db.Posts.Add(post);
+            await _db.SaveChangesAsync();
+        }
+
         public async Task<PagedPostDto> FetchPostsBy(int page, int pageSize, PostSortType postSortType, CommonOrderType orderType, string? keyword)
         {
             IQueryable<Post> query = _db.Posts;

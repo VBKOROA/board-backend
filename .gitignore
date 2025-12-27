@@ -482,3 +482,7 @@ $RECYCLE.BIN/
 *.swp
 
 *.db
+
+# to text util files
+to-text*
+to_text*

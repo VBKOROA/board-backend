@@ -28,14 +28,7 @@ public class PostController(AppDbContext db, IPostService postService) : Control
     public async Task<ActionResult<CreatePostResponse>> CreatePost([FromBody] CreatePostRequest request)
     {
 
-        var post = new Post
-        {
-            Title = request.Title,
-            Content = request.Content ?? ""
-        };
-
-        _db.Posts.Add(post);
-        await _db.SaveChangesAsync();
+        var post = await _postService.CreatePost(request.Title, request.Content);
 
         return StatusCode(201, new CreatePostResponse(post));
     }
