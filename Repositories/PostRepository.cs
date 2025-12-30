@@ -50,5 +50,10 @@ namespace BoardApi.Repositories
 
             return new PagedPostDto(posts, totalPosts);
         }
+
+        public void Delete(Post post)
+        {
+            _db.Posts.Remove(post);
+        }
     }
 }

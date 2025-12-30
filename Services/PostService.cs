@@ -59,5 +59,12 @@ namespace BoardApi.Services
         {
             return await _postRepository.FetchPostsBy(page, pageSize, postSortType, orderType, keyword);
         }
+
+        public async Task DeletePostBy(int id)
+        {
+            var post = await _postRepository.FindBy(id) ?? throw new Exception();
+            _postRepository.Delete(post);
+            await _uow.SaveChnages();
+        }
     }
 }

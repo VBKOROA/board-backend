@@ -65,15 +65,14 @@ public class PostController(AppDbContext db, IPostService postService) : Control
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeletePostBy(int id)
     {
-        var post = await _db.Posts.FindAsync(id);
-
-        if (post is null)
+        try
+        {
+            await _postService.DeletePostBy(id);
+        }
+        catch(Exception)
         {
             return NotFound("Post not found");
         }
-
-        _db.Posts.Remove(post);
-        await _db.SaveChangesAsync();
 
         return NoContent();
     }

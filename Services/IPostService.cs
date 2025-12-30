@@ -9,5 +9,7 @@ namespace BoardApi.Services
         Task<PostDto> CreatePost(string title, string? content);
         Task<PostDto?> GetPostBy(int id);
         Task EditPostBy(int id, string? title, string? content);
+
+        Task DeletePostBy(int id);
     }
 }
