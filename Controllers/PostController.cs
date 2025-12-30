@@ -1,19 +1,15 @@
 using BoardApi.Common.Dtos;
-using BoardApi.Data;
 using BoardApi.Dtos;
-using BoardApi.Enums;
 using BoardApi.Models;
 using BoardApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BoardApi.Controllers;
 
 [ApiController]
 [Route("api/posts")]
-public class PostController(AppDbContext db, IPostService postService) : ControllerBase
+public class PostController(IPostService postService) : ControllerBase
 {
-    private readonly AppDbContext _db = db;
     private readonly IPostService _postService = postService;
 
     [HttpGet]
