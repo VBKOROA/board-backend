@@ -34,26 +34,14 @@ public class PostController(IPostService postService) : ControllerBase
     {
         var post = await _postService.GetPostBy(id);
 
-        if (post is null)
-        {
-            return NotFound("Post not found.");
-        }
-
         return Ok(new GetPostByResponse(post));
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditPostBy(int id, [FromBody] EditPostRequest request)
     {
-        
-        try
-        {
-            await _postService.EditPostBy(id, request.Title, request.Content);
-        }
-        catch(Exception)
-        {
-            return NotFound("Post not found");
-        }
+
+        await _postService.EditPostBy(id, request.Title, request.Content);
 
         return NoContent();
     }
@@ -61,14 +49,7 @@ public class PostController(IPostService postService) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeletePostBy(int id)
     {
-        try
-        {
-            await _postService.DeletePostBy(id);
-        }
-        catch(Exception)
-        {
-            return NotFound("Post not found");
-        }
+        await _postService.DeletePostBy(id);
 
         return NoContent();
     }

@@ -1,6 +1,7 @@
 using BoardApi.Data;
 using BoardApi.Dtos;
 using BoardApi.Enums;
+using BoardApi.Exceptions;
 using BoardApi.Models;
 using BoardApi.Repositories;
 
@@ -13,7 +14,7 @@ namespace BoardApi.Services
 
         public async Task EditPostBy(int id, string? title, string? content)
         {
-            var post = await _postRepository.FindBy(id) ?? throw new Exception();
+            var post = await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
             
             if (title is not null)
             {
@@ -28,14 +29,9 @@ namespace BoardApi.Services
             await _uow.SaveChnages();
         }
 
-        public async Task<PostDto?> GetPostBy(int id)
+        public async Task<PostDto> GetPostBy(int id)
         {
-            var post = await _postRepository.FindBy(id);
-
-            if (post is null)
-            {
-                return null;
-            }
+            var post = await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
 
             return new PostDto(post);
         }
@@ -62,7 +58,7 @@ namespace BoardApi.Services
 
         public async Task DeletePostBy(int id)
         {
-            var post = await _postRepository.FindBy(id) ?? throw new Exception();
+            var post = await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
             _postRepository.Delete(post);
             await _uow.SaveChnages();
         }
