@@ -53,4 +53,11 @@ public class PostController(IPostService postService) : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("{id:int}/comments")]
+    public async Task<ActionResult<WriteCommentResponse>> WriteComment(int id, [FromBody] WriteCommentRequest request)
+    {
+        var result = await _postService.WriteCommentTo(id, request.Contents);
+        return StatusCode(201, new WriteCommentResponse(result));
+    }
 }

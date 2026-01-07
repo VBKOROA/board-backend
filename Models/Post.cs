@@ -7,4 +7,11 @@ public class Post
     public required string Content {get; set;}
     public ICollection<Comment> Comments {get; set;} = [];
     public DateTime CreatedAt {get; init;} = DateTime.Now;
+
+    public Comment AddNewComment(string contents)
+    {
+        var comment = Comment.Of(contents, this);
+        Comments.Add(comment);
+        return comment;
+    }
 }

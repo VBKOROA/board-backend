@@ -14,8 +14,8 @@ namespace BoardApi.Services
 
         public async Task EditPostBy(int id, string? title, string? content)
         {
-            var post = await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
-            
+            Post post = await FetchPostBy(id);
+
             if (title is not null)
             {
                 post.Title = title;
@@ -31,7 +31,7 @@ namespace BoardApi.Services
 
         public async Task<PostDto> GetPostBy(int id)
         {
-            var post = await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
+            var post = await FetchPostBy(id);
 
             return new PostDto(post);
         }
@@ -58,9 +58,22 @@ namespace BoardApi.Services
 
         public async Task DeletePostBy(int id)
         {
-            var post = await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
+            var post = await FetchPostBy(id);
             _postRepository.Delete(post);
             await _uow.SaveChnages();
+        }
+
+        public async Task<CommentDto> WriteCommentTo(int postId, string content)
+        {
+            var post = await FetchPostBy(postId);
+            var comment = post.AddNewComment(content);
+            await _uow.SaveChnages();
+            return new CommentDto(comment);
+        }
+
+        private async Task<Post> FetchPostBy(int id)
+        {
+            return await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
         }
     }
 }
