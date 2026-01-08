@@ -10,7 +10,7 @@ namespace BoardApi.Repositories
     {
         private readonly AppDbContext _db = db;
 
-        public async Task<Post?> FindBy(int id) 
+        public async Task<Post?> FindBy(int id)
         {
             return await _db.Posts.FindAsync(id);
         }
@@ -54,6 +54,13 @@ namespace BoardApi.Repositories
         public void Delete(Post post)
         {
             _db.Posts.Remove(post);
+        }
+
+        public async Task<Post?> FindByIncludeComments(int id)
+        {
+            return await _db.Posts
+                .Include(post => post.Comments)
+                .FirstOrDefaultAsync(post => post.Id == id);
         }
     }
 }

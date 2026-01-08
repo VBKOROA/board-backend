@@ -75,5 +75,12 @@ namespace BoardApi.Services
         {
             return await _postRepository.FindBy(id) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
         }
+
+        public async Task<IReadOnlyList<CommentDto>> GetCommentsBy(int postId)
+        {
+            var post = await _postRepository.FindByIncludeComments(postId) ?? throw new BusinessException(CommonErrorCode.PostNotFound);
+            
+            return [.. post.Comments.OrderByDescending(comment => comment.CreatedAt).Select(comment => new CommentDto(comment))];
+        }
     }
 }

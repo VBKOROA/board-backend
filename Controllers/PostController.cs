@@ -54,10 +54,16 @@ public class PostController(IPostService postService) : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("{id:int}/comments")]
-    public async Task<ActionResult<WriteCommentResponse>> WriteComment(int id, [FromBody] WriteCommentRequest request)
+    [HttpPost("{postId:int}/comments")]
+    public async Task<ActionResult<WriteCommentResponse>> WriteComment(int postId, [FromBody] WriteCommentRequest request)
     {
-        var result = await _postService.WriteCommentTo(id, request.Contents);
+        var result = await _postService.WriteCommentTo(postId, request.Contents);
         return StatusCode(201, new WriteCommentResponse(result));
+    }
+
+    [HttpGet("{postId:int}/comments")]
+    public async Task<ActionResult<IReadOnlyList<CommentDto>>> GetCommentsBy(int postId)
+    {
+        return Ok(await _postService.GetCommentsBy(postId));
     }
 }
